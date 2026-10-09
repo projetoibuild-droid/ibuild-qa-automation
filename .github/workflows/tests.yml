@@ -1,0 +1,19 @@
+name: QA automation
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm install
+      - run: npm run typecheck
+  # Integração com DEV/HML e testes HTTP/E2E será habilitada após
+  # configuração das URLs e autenticação/secrets necessários.
