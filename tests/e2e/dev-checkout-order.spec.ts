@@ -82,4 +82,7 @@ test('SCRUM-122 | checkout, cupom, pedido e acompanhamento reais', async ({ page
     }
     expect((await clearCart()).ok(), 'Limpeza final do carrinho').toBeTruthy()
   }
+  } finally {
+    removeTransientClient(email)
+  }
 })
