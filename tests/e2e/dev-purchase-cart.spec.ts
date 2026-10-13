@@ -17,13 +17,13 @@ test.describe('SCRUM-122 | compra com serviços reais e seed DEV', () => {
     assertLocalDevFixtureTarget(web, api)
     const { email } = makeTestIdentity()
     const password = 'QaTeste@12345'
+    try {
     const registration = await request.post(`${api}/api/v1/auth/register`, { data: {
       name: 'Cliente E2E SCRUM 123', email, password,
     } })
     expect(registration.status(), 'Cadastro do cliente exclusivo de teste').toBe(202)
 
-    try {
-    const login = await request.post(`${api}/api/v1/auth/login`, { data: { email, password } })
+    const login = await request.post = await request.post(`${api}/api/v1/auth/login`, { data: { email, password } })
     expect(login.ok(), 'Login API do usuário fictício DEV').toBeTruthy()
     const loginData = await login.json()
     const token = loginData.data.accessToken as string
