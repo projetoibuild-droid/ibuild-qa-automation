@@ -12,9 +12,10 @@ export function assertNoTransientClients() {
     "const prisma = new PrismaClient();",
     "(async () => {",
     " const accounts = await prisma.user.findMany({ where:{ email:{ startsWith:'scrum123.', endsWith:'@ibuild.test' } }, select:{ email:true } });",
-    " const count = accounts.length;",
-    " console.log(JSON.stringify({ transientClients:count }));",
-    " if (count !== 0) process.exitCode=1;",
+    " const coupons = await prisma.coupon.count({ where:{ code:{ startsWith:'SCRUM123' } } });
+ const count = accounts.length;",
+    " console.log(JSON.stringify({ transientClients:count, transientCoupons:coupons }));",
+    " if (count !== 0 || coupons !== 0) process.exitCode=1;",
     "})().catch(e => { console.error(e); process.exitCode=1 }).finally(() => prisma.$disconnect());",
   ].join('\n')
   const output = execFileSync('docker', ['compose', 'exec', '-T', 'api', 'node', '-e', script], {
@@ -22,5 +23,5 @@ export function assertNoTransientClients() {
     timeout: 20000,
     encoding: 'utf8',
   })
-  return JSON.parse(output.trim().split('\n').at(-1) || '{}') as { transientClients: number }
+  return JSON.parse(output.trim().split('\n').at(-1) || '{}') as { transientClients: number; transientCoupons: number }
 }
