@@ -11,14 +11,14 @@ const local = (value: string) => {
 
 test('SCRUM-122 | checkout, cupom, pedido e acompanhamento reais', async ({ page, request }) => {
   test.skip(!local(web) || !local(api), 'Este cenário utiliza somente DEV local')
-  const email = 'cliente1.dev@ibuild.test'
+  const email = 'cliente2.dev@ibuild.test'
   const password = 'Dev@12345'
   const login = await request.post(api + '/api/v1/auth/login', { data: { email, password } })
   expect(login.ok()).toBeTruthy()
   const token = (await login.json()).data.accessToken as string
   const auth = { Authorization: 'Bearer ' + token }
   const merchantLogin = await request.post(api + '/api/v1/auth/login', {
-    data: { email: 'lojista1.dev@ibuild.test', password },
+    data: { email: 'lojista2.dev@ibuild.test', password },
   })
   expect(merchantLogin.ok()).toBeTruthy()
   const merchantAuth = { Authorization: 'Bearer ' + (await merchantLogin.json()).data.accessToken }
@@ -38,7 +38,7 @@ test('SCRUM-122 | checkout, cupom, pedido e acompanhamento reais', async ({ page
     await page.getByRole('button', { name: /^entrar$/i }).click()
     await expect(page).toHaveURL(/\/home(?:[/?#]|$)/)
 
-    await page.goto('/product/p01')
+    await page.goto('/product/p02')
     await expect(page.getByRole('button', { name: /comprar agora/i })).toBeVisible()
     await page.getByRole('button', { name: /comprar agora/i }).click()
     await expect(page).toHaveURL(/\/cart(?:[/?#]|$)/)
