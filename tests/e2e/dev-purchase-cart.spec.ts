@@ -1,4 +1,6 @@
 import { expect, test } from '@playwright/test'
+import { makeTestIdentity, assertLocalDevFixtureTarget } from '../fixtures/test-identity.js'
+import { removeTransientClient } from '../fixtures/dev-client-cleanup.js'
 
 // Este fluxo usa somente o banco DEV local e fixtures versionadas pelo seed do produto.
 // Não é executado em HML/PROD: credenciais de DEV são deliberadamente restritas a localhost.
@@ -12,9 +14,14 @@ const devAllowed = localOnly(web) && localOnly(api)
 test.describe('SCRUM-122 | compra com serviços reais e seed DEV', () => {
   test.skip(!devAllowed, 'Fixture DEV só pode executar em localhost; nunca utilizar em PROD/HML.')
   test('cliente autentica, consulta produto e persiste carrinho após refresh', async ({ page, request }) => {
-    const email = 'cliente1.dev@ibuild.test'
-    // Credencial conhecida do seed DEV. Nunca transportar para HML/PROD.
-    const password = 'Dev@12345'
+    assertLocalDevFixtureTarget(web, api)
+    const { email } = makeTestIdentity()
+    const password = 'QaTeste@12345'
+    try {
+    const registration = await request.post(`${api}/api/v1/auth/register`, { data: {
+      name: 'Cliente E2E SCRUM 123', email, password,
+    } })
+    expect(registration.status(), 'Cadastro do cliente exclusivo de teste').toBe(202)
 
     const login = await request.post(`${api}/api/v1/auth/login`, { data: { email, password } })
     expect(login.ok(), 'Login API do usuário fictício DEV').toBeTruthy()
@@ -55,6 +62,9 @@ test.describe('SCRUM-122 | compra com serviços reais e seed DEV', () => {
     } finally {
       const cleaned = await clear()
       expect(cleaned.ok(), 'Limpeza final do carrinho DEV').toBeTruthy()
+    }
+    } finally {
+      removeTransientClient(email)
     }
   })
 })

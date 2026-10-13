@@ -13,6 +13,7 @@ export default defineConfig({
   use: { baseURL: webURL, trace: 'retain-on-failure', screenshot: 'only-on-failure' },
   projects: [
     { name: 'api', testMatch: '**/api/**/*.spec.ts', use: { baseURL: apiURL } },
+    { name: 'audit', testMatch: '**/audit/**/*.spec.ts', use: { baseURL: apiURL } },
     { name: 'chromium', testMatch: '**/e2e/**/*.spec.ts', use: { ...devices['Desktop Chrome'] } },
   ],
 })

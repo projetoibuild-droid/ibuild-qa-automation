@@ -1,4 +1,6 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, type APIRequestContext } from '@playwright/test'
+import { makeTestIdentity, assertLocalDevFixtureTarget } from '../fixtures/test-identity.js'
+import { removeTransientClient } from '../fixtures/dev-client-cleanup.js'
 
 // Usa exclusivamente a massa fictícia e o backend DEV em localhost.
 // É propositalmente um único teste: os passos compartilham o mesmo carrinho.
@@ -9,21 +11,39 @@ const local = (value: string) => {
   catch { return false }
 }
 
+// Retry estritamente para leitura idempotente e erro de transporte, nunca para POST de pedido.
+async function getOwnOrders(request: APIRequestContext, headers: { Authorization: string }) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      return await request.get(api + '/api/v1/orders?page=1&limit=100', { headers, timeout: 10_000 })
+    } catch (error) {
+      const transient = /ECONNRESET|socket hang up|ECONNREFUSED|ETIMEDOUT/i.test(String(error))
+      if (!transient || attempt === 2) throw error
+      await new Promise((resolve) => setTimeout(resolve, 250 * (attempt + 1)))
+    }
+  }
+  throw new Error('Consulta de pedidos esgotou tentativas')
+}
+
 test('SCRUM-122 | checkout, cupom, pedido e acompanhamento reais', async ({ page, request }) => {
   test.skip(!local(web) || !local(api), 'Este cenário utiliza somente DEV local')
-  const email = 'cliente2.dev@ibuild.test'
-  const password = 'Dev@12345'
+  assertLocalDevFixtureTarget(web, api)
+  const { email } = makeTestIdentity()
+  const password = 'QaTeste@12345'
+  try {
+  const register = await request.post(api + '/api/v1/auth/register', { data: { name: 'Comprador QA SCRUM 123', email, password } })
+  expect(register.status()).toBe(202)
   const login = await request.post(api + '/api/v1/auth/login', { data: { email, password } })
   expect(login.ok()).toBeTruthy()
   const token = (await login.json()).data.accessToken as string
   const auth = { Authorization: 'Bearer ' + token }
   const merchantLogin = await request.post(api + '/api/v1/auth/login', {
-    data: { email: 'lojista2.dev@ibuild.test', password },
+    data: { email: 'lojista2.dev@ibuild.test', password: 'Dev@12345' },
   })
   expect(merchantLogin.ok()).toBeTruthy()
   const merchantAuth = { Authorization: 'Bearer ' + (await merchantLogin.json()).data.accessToken }
 
-  const beforeResponse = await request.get(api + '/api/v1/orders?page=1&limit=100', { headers: auth })
+  const beforeResponse = await getOwnOrders(request, auth)
   expect(beforeResponse.ok()).toBeTruthy()
   const before = new Set<string>((await beforeResponse.json()).data.map((order: { id: string }) => order.id))
   let orderId: string | undefined
@@ -51,11 +71,20 @@ test('SCRUM-122 | checkout, cupom, pedido e acompanhamento reais', async ({ page
     await page.getByRole('button', { name: /^aplicar$/i }).click()
     await expect(page.getByText(/cupom não encontrado/i)).toBeVisible()
 
+    // O cliente recém-criado não possui endereço salvo; preencher a massa no próprio cenário.
+    await page.getByPlaceholder('Identificação (ex.: Obra)').fill('Entrega QA SCRUM 123')
+    await page.getByPlaceholder('CEP').fill('06454000')
+    await page.getByPlaceholder('UF').fill('SP')
+    await page.getByPlaceholder('Rua').fill('Rua de Teste')
+    await page.getByPlaceholder('Número').fill('123')
+    await page.getByPlaceholder('Bairro').fill('Centro')
+    await page.getByPlaceholder('Cidade').fill('Barueri')
+
     await page.getByRole('button', { name: /confirmar pedido/i }).click()
     await expect(page).toHaveURL(/\/order-success(?:[/?#]|$)/)
     await expect(page.getByRole('heading', { name: /pedido recebido/i })).toBeVisible()
 
-    const afterResponse = await request.get(api + '/api/v1/orders?page=1&limit=100', { headers: auth })
+    const afterResponse = await getOwnOrders(request, auth)
     expect(afterResponse.ok()).toBeTruthy()
     const created = (await afterResponse.json()).data.find((order: { id: string }) => !before.has(order.id))
     expect(created, 'Pedido deve existir na API').toBeTruthy()
@@ -75,5 +104,8 @@ test('SCRUM-122 | checkout, cupom, pedido e acompanhamento reais', async ({ page
       expect(cancel.ok(), 'Cancelamento do pedido de QA').toBeTruthy()
     }
     expect((await clearCart()).ok(), 'Limpeza final do carrinho').toBeTruthy()
+  }
+  } finally {
+    removeTransientClient(email)
   }
 })
