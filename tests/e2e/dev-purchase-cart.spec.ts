@@ -23,7 +23,7 @@ test.describe('SCRUM-122 | compra com serviços reais e seed DEV', () => {
     } })
     expect(registration.status(), 'Cadastro do cliente exclusivo de teste').toBe(202)
 
-    const login = await request.post = await request.post(`${api}/api/v1/auth/login`, { data: { email, password } })
+    const login = await request.post(`${api}/api/v1/auth/login`, { data: { email, password } })
     expect(login.ok(), 'Login API do usuário fictício DEV').toBeTruthy()
     const loginData = await login.json()
     const token = loginData.data.accessToken as string
