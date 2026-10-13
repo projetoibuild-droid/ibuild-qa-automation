@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test'
+import { makeTestIdentity, assertLocalDevFixtureTarget } from '../fixtures/test-identity.js'
+import { removeTransientClient } from '../fixtures/dev-client-cleanup.js'
 
 // Usa exclusivamente a massa fictícia e o backend DEV em localhost.
 // É propositalmente um único teste: os passos compartilham o mesmo carrinho.
@@ -11,14 +13,18 @@ const local = (value: string) => {
 
 test('SCRUM-122 | checkout, cupom, pedido e acompanhamento reais', async ({ page, request }) => {
   test.skip(!local(web) || !local(api), 'Este cenário utiliza somente DEV local')
-  const email = 'cliente2.dev@ibuild.test'
-  const password = 'Dev@12345'
+  assertLocalDevFixtureTarget(web, api)
+  const { email } = makeTestIdentity()
+  const password = 'QaTeste@12345'
+  const register = await request.post(api + '/api/v1/auth/register', { data: { name: 'Comprador QA SCRUM 123', email, password } })
+  expect(register.status()).toBe(202)
+  try {
   const login = await request.post(api + '/api/v1/auth/login', { data: { email, password } })
   expect(login.ok()).toBeTruthy()
   const token = (await login.json()).data.accessToken as string
   const auth = { Authorization: 'Bearer ' + token }
   const merchantLogin = await request.post(api + '/api/v1/auth/login', {
-    data: { email: 'lojista2.dev@ibuild.test', password },
+    data: { email: 'lojista2.dev@ibuild.test', password: 'Dev@12345' },
   })
   expect(merchantLogin.ok()).toBeTruthy()
   const merchantAuth = { Authorization: 'Bearer ' + (await merchantLogin.json()).data.accessToken }
