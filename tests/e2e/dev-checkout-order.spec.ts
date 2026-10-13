@@ -16,9 +16,9 @@ test('SCRUM-122 | checkout, cupom, pedido e acompanhamento reais', async ({ page
   assertLocalDevFixtureTarget(web, api)
   const { email } = makeTestIdentity()
   const password = 'QaTeste@12345'
+  try {
   const register = await request.post(api + '/api/v1/auth/register', { data: { name: 'Comprador QA SCRUM 123', email, password } })
   expect(register.status()).toBe(202)
-  try {
   const login = await request.post(api + '/api/v1/auth/login', { data: { email, password } })
   expect(login.ok()).toBeTruthy()
   const token = (await login.json()).data.accessToken as string
