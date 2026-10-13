@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, type APIRequestContext } from '@playwright/test'
 import { makeTestIdentity, assertLocalDevFixtureTarget } from '../fixtures/test-identity.js'
 import { removeTransientClient } from '../fixtures/dev-client-cleanup.js'
 
@@ -9,6 +9,20 @@ const api = process.env.API_BASE_URL ?? 'http://127.0.0.1:3333'
 const local = (value: string) => {
   try { return ['localhost', '127.0.0.1'].includes(new URL(value).hostname) }
   catch { return false }
+}
+
+// Retry estritamente para leitura idempotente e erro de transporte, nunca para POST de pedido.
+async function getOwnOrders(request: APIRequestContext, headers: { Authorization: string }) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      return await request.get(api + '/api/v1/orders?page=1&limit=100', { headers, timeout: 10_000 })
+    } catch (error) {
+      const transient = /ECONNRESET|socket hang up|ECONNREFUSED|ETIMEDOUT/i.test(String(error))
+      if (!transient || attempt === 2) throw error
+      await new Promise((resolve) => setTimeout(resolve, 250 * (attempt + 1)))
+    }
+  }
+  throw new Error('Consulta de pedidos esgotou tentativas')
 }
 
 test('SCRUM-122 | checkout, cupom, pedido e acompanhamento reais', async ({ page, request }) => {
@@ -29,7 +43,7 @@ test('SCRUM-122 | checkout, cupom, pedido e acompanhamento reais', async ({ page
   expect(merchantLogin.ok()).toBeTruthy()
   const merchantAuth = { Authorization: 'Bearer ' + (await merchantLogin.json()).data.accessToken }
 
-  const beforeResponse = await request.get(api + '/api/v1/orders?page=1&limit=100', { headers: auth })
+  const beforeResponse = await getOwnOrders(request, auth)
   expect(beforeResponse.ok()).toBeTruthy()
   const before = new Set<string>((await beforeResponse.json()).data.map((order: { id: string }) => order.id))
   let orderId: string | undefined
@@ -70,7 +84,7 @@ test('SCRUM-122 | checkout, cupom, pedido e acompanhamento reais', async ({ page
     await expect(page).toHaveURL(/\/order-success(?:[/?#]|$)/)
     await expect(page.getByRole('heading', { name: /pedido recebido/i })).toBeVisible()
 
-    const afterResponse = await request.get(api + '/api/v1/orders?page=1&limit=100', { headers: auth })
+    const afterResponse = await getOwnOrders(request, auth)
     expect(afterResponse.ok()).toBeTruthy()
     const created = (await afterResponse.json()).data.find((order: { id: string }) => !before.has(order.id))
     expect(created, 'Pedido deve existir na API').toBeTruthy()
