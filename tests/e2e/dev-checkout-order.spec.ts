@@ -57,6 +57,15 @@ test('SCRUM-122 | checkout, cupom, pedido e acompanhamento reais', async ({ page
     await page.getByRole('button', { name: /^aplicar$/i }).click()
     await expect(page.getByText(/cupom não encontrado/i)).toBeVisible()
 
+    // O cliente recém-criado não possui endereço salvo; preencher a massa no próprio cenário.
+    await page.getByPlaceholder('Identificação (ex.: Obra)').fill('Entrega QA SCRUM 123')
+    await page.getByPlaceholder('CEP').fill('06454000')
+    await page.getByPlaceholder('UF').fill('SP')
+    await page.getByPlaceholder('Rua').fill('Rua de Teste')
+    await page.getByPlaceholder('Número').fill('123')
+    await page.getByPlaceholder('Bairro').fill('Centro')
+    await page.getByPlaceholder('Cidade').fill('Barueri')
+
     await page.getByRole('button', { name: /confirmar pedido/i }).click()
     await expect(page).toHaveURL(/\/order-success(?:[/?#]|$)/)
     await expect(page.getByRole('heading', { name: /pedido recebido/i })).toBeVisible()
