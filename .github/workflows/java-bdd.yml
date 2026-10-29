@@ -1,0 +1,25 @@
+name: Java BDD - validar compilacao
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/java-selenium-restassured
+    paths:
+      - 'java-bdd/**'
+      - '.github/workflows/java-bdd.yml'
+jobs:
+  compile-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: java-bdd
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+          cache-dependency-path: java-bdd/pom.xml
+      - name: Compilar testes sem acessar ambiente
+        run: mvn -B -ntp test-compile
