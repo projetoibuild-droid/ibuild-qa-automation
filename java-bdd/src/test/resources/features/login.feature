@@ -11,7 +11,7 @@ Funcionalidade: Autenticação e navegação de compradores
     Quando informo "inexistente@example.com" no campo "seuemail@email.com" do marketplace
     E informo "senhaerrada" no campo "••••••" do marketplace
     E clico na ação "Entrar" do marketplace
-    Então a rota atual deve conter "/login"
+    Então devo encontrar "E-mail ou senha inválidos." no marketplace
 
   Cenário: Navegar para a página de recuperação de senha
     Dado que navego para "/forgot-password" no marketplace
