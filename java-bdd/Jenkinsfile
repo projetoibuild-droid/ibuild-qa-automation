@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+    tools { jdk 'jdk17'; maven 'maven3' }
+    parameters {
+        string(name: 'WEB_BASE_URL', defaultValue: 'http://127.0.0.1:5173', description: 'Frontend acessível pelo agente')
+        string(name: 'API_BASE_URL', defaultValue: 'http://127.0.0.1:3333', description: 'Backend acessível pelo agente')
+        string(name: 'API_HEALTH_PATH', defaultValue: '/health', description: 'Rota real de saúde da API')
+        choice(name: 'TEST_TAGS', choices: ['@smoke', '@api', '@web'], description: 'Seleção Cucumber')
+    }
+    stages {
+        stage('Automação Java / BDD') {
+            steps {
+                dir('java-bdd') {
+                    withEnv([
+                        "WEB_BASE_URL=${params.WEB_BASE_URL}",
+                        "API_BASE_URL=${params.API_BASE_URL}",
+                        "API_HEALTH_PATH=${params.API_HEALTH_PATH}",
+                        "HEADLESS=true"
+                    ]) {
+                        sh 'mvn -B test -Dcucumber.filter.tags="${TEST_TAGS}"'
+                    }
+                }
+            }
+        }
+    }
+    post {
+        always {
+            junit allowEmptyResults: true, testResults: 'java-bdd/target/surefire-reports/*.xml'
+            archiveArtifacts allowEmptyArchive: true, artifacts: 'java-bdd/target/cucumber-report.*'
+        }
+    }
+}
