@@ -16,9 +16,7 @@
   <build><plugins>
     <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-compiler-plugin</artifactId><version>3.13.0</version></plugin>
     <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-surefire-plugin</artifactId><version>3.5.2</version>
-      <configuration><includes><include>**/RunCucumberTest.java</include></includes><systemPropertyVariables>
-        <cucumber.filter.tags>${cucumber.filter.tags}</cucumber.filter.tags>
-      </systemPropertyVariables></configuration>
+      <configuration><includes><include>**/RunCucumberTest.java</include></includes></configuration>
     </plugin>
   </plugins></build>
 </project>
