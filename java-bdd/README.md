@@ -38,3 +38,11 @@ Aponte um Pipeline para `java-bdd/Jenkinsfile`. Adapte os nomes das ferramentas 
 - Evoluir para Page Objects de fluxos de negócio, dados isolados, asserts de contrato, cenários negativos, fluxo E2E front+API e testes de regressão.
 - Perfecto exige conta/credenciais e configuração específica; este módulo **não** afirma integração com Perfecto.
 - Jenkinsfile incluído como exemplo configurável, não como pipeline já executado.
+
+## Cobertura adicional de telas (baseada no código do produto)
+
+`telas_publicas.feature`: 6 exemplos de navegação para login comprador, login lojista, cadastro, home, carrinho vazio e calculadora.
+
+`cadastro_validacoes.feature`: 2 cenários negativos para confirmação de senha divergente e senha com menos de 6 caracteres, sem criar conta.
+
+Os novos cenários usam tags `@screens` e `@regression`. Execute com `mvn test -Dcucumber.filter.tags="@screens"`. Os seletores/asserções foram derivados dos componentes React existentes; ainda é obrigatório executar e ajustar contra a versão implantada. Existem mais rotas do produto que requerem autenticação e massa de dados antes da automação.
