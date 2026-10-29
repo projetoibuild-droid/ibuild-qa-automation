@@ -41,7 +41,7 @@ Aponte um Pipeline para `java-bdd/Jenkinsfile`. Adapte os nomes das ferramentas 
 
 ## Cobertura adicional de telas (baseada no código do produto)
 
-`telas_publicas.feature`: 6 exemplos de navegação para login comprador, login lojista, cadastro, home, carrinho vazio e calculadora.
+`telas_publicas.feature`: 11 exemplos de navegação para login comprador, login lojista, cadastro de comprador e lojista, home, carrinho vazio, calculadora, favoritos vazios, recuperar senha, pedidos e endereços.
 
 `cadastro_validacoes.feature`: 2 cenários negativos para confirmação de senha divergente e senha com menos de 6 caracteres, sem criar conta.
 
