@@ -46,3 +46,13 @@ Aponte um Pipeline para `java-bdd/Jenkinsfile`. Adapte os nomes das ferramentas 
 `cadastro_validacoes.feature`: 2 cenários negativos para confirmação de senha divergente e senha com menos de 6 caracteres, sem criar conta.
 
 Os novos cenários usam tags `@screens` e `@regression`. Execute com `mvn test -Dcucumber.filter.tags="@screens"`. Os seletores/asserções foram derivados dos componentes React existentes; ainda é obrigatório executar e ajustar contra a versão implantada. Existem mais rotas do produto que requerem autenticação e massa de dados antes da automação.
+
+## Jornadas de negócio adicionais
+
+- `commerce.feature`: 5 variações de produto por ID (massa do catálogo existente), adicionar ao carrinho, frete para CEP 90, CEP inválido, entrada no checkout e catálogo da categoria pisos (10 cenários).
+- `login.feature`: login inválido com assert da mensagem de erro da aplicação e acesso à recuperação de senha (2 cenários).
+- Total atual: **27 cenários** (11 de telas + 2 de cadastro inválido + 2 smoke iniciais + 10 de comércio + 2 de login).
+- Para rodar apenas o comércio: `mvn test -Dcucumber.filter.tags="@commerce"`.
+- Workflow GitHub Actions `java-bdd.yml`: compila os testes com `mvn test-compile`, sem depender dos servidores.
+
+**Estado de validação:** códigos criados, ainda sem evidência de compilação bem-sucedida nem execução HTTP/navegador neste ambiente. Reavaliar os cenários contra a UI atual e adaptar os dados para HML antes de apresentar resultados. Não compartilhar credenciais ou dados reais.
