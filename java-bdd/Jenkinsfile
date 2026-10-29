@@ -15,7 +15,8 @@ pipeline {
                         "WEB_BASE_URL=${params.WEB_BASE_URL}",
                         "API_BASE_URL=${params.API_BASE_URL}",
                         "API_HEALTH_PATH=${params.API_HEALTH_PATH}",
-                        "HEADLESS=true"
+                        "HEADLESS=true",
+                        "TEST_TAGS=${params.TEST_TAGS}"
                     ]) {
                         sh 'mvn -B test -Dcucumber.filter.tags="${TEST_TAGS}"'
                     }
