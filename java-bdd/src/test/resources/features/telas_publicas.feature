@@ -17,3 +17,8 @@ Funcionalidade: Telas públicas do marketplace IBuild
       | Início marketplace| /home             | O que você precisa?      |
       | Carrinho vazio    | /cart             | Carrinho vazio           |
       | Calculadora       | /calculator       | Calculadora de materiais |
+      | Favoritos vazios  | /favorites        | Nenhum favorito          |
+      | Recuperar senha   | /forgot-password  | Esqueci a senha          |
+      | Cadastro lojista  | /admin/register   | Cadastrar minha loja     |
+      | Pedidos           | /my-orders        | Meus pedidos             |
+      | Endereços         | /addresses        | Meus endereços           |
