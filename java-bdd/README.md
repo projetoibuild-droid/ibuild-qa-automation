@@ -51,8 +51,11 @@ Os novos cenários usam tags `@screens` e `@regression`. Execute com `mvn test -
 
 - `commerce.feature`: 5 variações de produto por ID (massa do catálogo existente), adicionar ao carrinho, frete para CEP 90, CEP inválido, entrada no checkout e catálogo da categoria pisos (10 cenários).
 - `login.feature`: login inválido com assert da mensagem de erro da aplicação e acesso à recuperação de senha (2 cenários).
-- Total atual: **27 cenários** (11 de telas + 2 de cadastro inválido + 2 smoke iniciais + 10 de comércio + 2 de login).
+- Total atual: **33 cenários** (11 de telas + 2 de cadastro inválido + 2 smoke iniciais + 10 de comércio + 2 de login + 6 de busca).
 - Para rodar apenas o comércio: `mvn test -Dcucumber.filter.tags="@commerce"`.
 - Workflow GitHub Actions `java-bdd.yml`: compila os testes com `mvn test-compile`, sem depender dos servidores.
 
 **Estado de validação:** códigos criados, ainda sem evidência de compilação bem-sucedida nem execução HTTP/navegador neste ambiente. Reavaliar os cenários contra a UI atual e adaptar os dados para HML antes de apresentar resultados. Não compartilhar credenciais ou dados reais.
+
+- `busca.feature`: pesquisa por 5 termos existentes no catálogo e 1 pesquisa sem resultado, com asserts sobre nomes e mensagem de vazio.
+- `@commerce`: executa catálogo, carrinho, login e busca; `@api`: executa apenas o smoke HTTP configurável. O backend ainda exige mapeamento de endpoints para testes de contrato e fluxos REST de negócio.
