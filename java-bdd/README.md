@@ -59,3 +59,11 @@ Os novos cenários usam tags `@screens` e `@regression`. Execute com `mvn test -
 
 - `busca.feature`: pesquisa por 5 termos existentes no catálogo e 1 pesquisa sem resultado, com asserts sobre nomes e mensagem de vazio.
 - `@commerce`: executa catálogo, carrinho, login e busca; `@api`: executa apenas o smoke HTTP configurável. O backend ainda exige mapeamento de endpoints para testes de contrato e fluxos REST de negócio.
+
+## Fluxos backend autenticados
+
+`backend_fluxos.feature` adiciona **13 cenários executáveis** com Rest Assured: cadastro de comprador, login, perfil, consulta de pedidos, autorização por perfil, e-mail duplicado, senha inválida, pedido vazio, produto inexistente, itens duplicados e limites de quantidade (0, -1, 101).
+
+Cobertura backend planejada no repositório: **26 cenários** (smoke original + 12 contratos + 13 fluxos), total geral: **58 cenários**.
+
+Requisitos: executar a API da branch `feature/backend-api-core` do repositório `ibuild`, com PostgreSQL e esquema Prisma preparados. Rodar `mvn test -Dcucumber.filter.tags="@backend"`. Os cenários com `@integration` criam compradores com e-mails aleatórios no banco de teste e **não limpam esses registros**: execute apenas em DEV/HML isolado e configure descarte/limpeza periódica dos dados de QA. Nenhum resultado verde foi confirmado nesta sessão; não execute em produção.
