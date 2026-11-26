@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { makeTestIdentity, assertLocalDevFixtureTarget } from '../fixtures/test-identity.js'
 import { removeTransientClient } from '../fixtures/dev-client-cleanup.js'
+import { LEGAL_VERSION } from '../fixtures/legal.js'
 
 // Este fluxo usa somente o banco DEV local e fixtures versionadas pelo seed do produto.
 // Não é executado em HML/PROD: credenciais de DEV são deliberadamente restritas a localhost.
@@ -19,7 +20,7 @@ test.describe('SCRUM-122 | compra com serviços reais e seed DEV', () => {
     const password = 'QaTeste@12345'
     try {
     const registration = await request.post(`${api}/api/v1/auth/register`, { data: {
-      name: 'Cliente E2E SCRUM 123', email, password,
+      name: 'Cliente E2E SCRUM 123', email, password, acceptedTermsVersion: LEGAL_VERSION,
     } })
     expect(registration.status(), 'Cadastro do cliente exclusivo de teste').toBe(202)
 

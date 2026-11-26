@@ -47,6 +47,7 @@ test('SCRUM-122 | cadastro real e cupom válido calculado no backend', async ({ 
     await page.getByPlaceholder('seuemail@email.com').fill(email)
     await page.getByPlaceholder('Use uma senha segura').fill(password)
     await page.getByPlaceholder('Repita a senha').fill(password)
+    await page.getByRole('checkbox', { name: /li e aceito/i }).check()
     await page.getByRole('button', { name: /criar conta grátis/i }).click()
     await expect(page).toHaveURL(/\/login\?registered=1/)
     await expect(page.getByText(/cadastro recebido/i)).toBeVisible()
