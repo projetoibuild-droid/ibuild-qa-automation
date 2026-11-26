@@ -1,6 +1,7 @@
 import { test, expect, type APIRequestContext } from '@playwright/test'
 import { makeTestIdentity, assertLocalDevFixtureTarget } from '../fixtures/test-identity.js'
 import { removeTransientClient } from '../fixtures/dev-client-cleanup.js'
+import { LEGAL_VERSION } from '../fixtures/legal.js'
 
 // Usa exclusivamente a massa fictícia e o backend DEV em localhost.
 // É propositalmente um único teste: os passos compartilham o mesmo carrinho.
@@ -31,7 +32,7 @@ test('SCRUM-122 | checkout, cupom, pedido e acompanhamento reais', async ({ page
   const { email } = makeTestIdentity()
   const password = 'QaTeste@12345'
   try {
-  const register = await request.post(api + '/api/v1/auth/register', { data: { name: 'Comprador QA SCRUM 123', email, password } })
+  const register = await request.post(api + '/api/v1/auth/register', { data: { name: 'Comprador QA SCRUM 123', email, password, acceptedTermsVersion: LEGAL_VERSION } })
   expect(register.status()).toBe(202)
   const login = await request.post(api + '/api/v1/auth/login', { data: { email, password } })
   expect(login.ok()).toBeTruthy()
